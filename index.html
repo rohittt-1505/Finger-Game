@@ -60,20 +60,19 @@
         });
         
         document.addEventListener("mousemove", (event) => {
-            let cursorPoint = document.querySelector(".cursor-point");
-            if (!cursorPoint) {
-                cursorPoint = document.createElement("div");
-                cursorPoint.classList.add("touch-point", "cursor-point");
-                document.body.appendChild(cursorPoint);
-            }
+            if (event.buttons !== 1) return; // Only create circle if mouse is clicked
+            let cursorPoint = document.createElement("div");
+            cursorPoint.classList.add("touch-point");
             cursorPoint.style.left = `${event.pageX - 50}px`;
             cursorPoint.style.top = `${event.pageY - 50}px`;
+            document.body.appendChild(cursorPoint);
+            touchPoints["mouse"] = cursorPoint;
         });
-
-        document.addEventListener("mouseleave", () => {
-            let cursorPoint = document.querySelector(".cursor-point");
-            if (cursorPoint) {
-                cursorPoint.remove();
+        
+        document.addEventListener("mouseup", () => {
+            if (touchPoints["mouse"]) {
+                touchPoints["mouse"].remove();
+                delete touchPoints["mouse"];
             }
         });
         
