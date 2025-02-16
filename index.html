@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finger Selector Game</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #121212;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            touch-action: none;
+        }
+        .touch-point {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(0, 123, 255, 0.3);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0, 123, 255, 0.8);
+            border: 3px solid rgba(0, 123, 255, 1);
+            transform: scale(1);
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.2);
+            }
+        }
+        .selected {
+            background-color: rgba(0, 255, 123, 0.5);
+            box-shadow: 0 0 40px rgba(0, 255, 123, 1);
+            border: 3px solid rgba(0, 255, 123, 1);
+        }
+    </style>
+</head>
+<body>
+    <script>
+        let touchPoints = {};
+        let timeout;
+        
+        document.addEventListener("touchstart", (event) => {
+            clearTimeout(timeout);
+            for (let touch of event.touches) {
+                let point = document.createElement("div");
+                point.classList.add("touch-point");
+                point.style.left = `${touch.pageX - 50}px`;
+                point.style.top = `${touch.pageY - 50}px`;
+                document.body.appendChild(point);
+                touchPoints[touch.identifier] = point;
+            }
+        });
+        
+        document.addEventListener("mousemove", (event) => {
+            let cursorPoint = document.querySelector(".cursor-point");
+            if (!cursorPoint) {
+                cursorPoint = document.createElement("div");
+                cursorPoint.classList.add("touch-point", "cursor-point");
+                document.body.appendChild(cursorPoint);
+            }
+            cursorPoint.style.left = `${event.pageX - 50}px`;
+            cursorPoint.style.top = `${event.pageY - 50}px`;
+        });
+
+        document.addEventListener("mouseleave", () => {
+            let cursorPoint = document.querySelector(".cursor-point");
+            if (cursorPoint) {
+                cursorPoint.remove();
+            }
+        });
+        
+        document.addEventListener("touchend", (event) => {
+            for (let touch of event.changedTouches) {
+                if (touchPoints[touch.identifier]) {
+                    document.body.removeChild(touchPoints[touch.identifier]);
+                    delete touchPoints[touch.identifier];
+                }
+            }
+            if (Object.keys(touchPoints).length > 0) {
+                timeout = setTimeout(selectRandom, 5000);
+            }
+        });
+        
+        function selectRandom() {
+            let keys = Object.keys(touchPoints);
+            if (keys.length > 0) {
+                let randomKey = keys[Math.floor(Math.random() * keys.length)];
+                touchPoints[randomKey].classList.add("selected");
+            }
+        }
+    </script>
+</body>
+</html>
